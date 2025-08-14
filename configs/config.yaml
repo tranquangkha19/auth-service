@@ -1,0 +1,7 @@
+APP_NAME: auth-service
+PORT: "8080"
+DATABASE:
+  HOST: "localhost"
+  PORT: "5432"
+  DB_NAME: "ck_auth"
+  SSL_MODE: "disable"
