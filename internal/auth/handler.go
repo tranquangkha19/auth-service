@@ -49,3 +49,30 @@ func (h *Handler) Register(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"status": "registered successfully"})
 }
+
+// ValidateToken validates a JWT token and returns user information
+func (h *Handler) ValidateToken(c *gin.Context) {
+	var req struct {
+		Token string `json:"token" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID, user, err := h.service.ValidateToken(req.Token)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"valid": false,
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"valid":   true,
+		"user_id": userID,
+		"user":    user,
+	})
+}

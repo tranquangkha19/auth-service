@@ -29,6 +29,7 @@ func NewServer(cfg config.Config) *Server {
 
 	router.POST("/login", authHandler.Login)
 	router.POST("/register", authHandler.Register)
+	router.POST("/validate-token", authHandler.ValidateToken)
 
 	// Health check endpoint
 	router.GET("/health", func(c *gin.Context) {

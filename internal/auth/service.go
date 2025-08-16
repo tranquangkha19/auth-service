@@ -91,3 +91,26 @@ func (s *Service) Register(req RegisterRequest) error {
 
 	return s.db.CreateUser(user)
 }
+
+// ValidateToken validates a JWT token and returns user information
+// For now, this is a simple mock implementation
+func (s *Service) ValidateToken(token string) (uint, *database.User, error) {
+	// TODO: Implement proper JWT token validation
+	// For now, we'll use a simple mock token validation
+
+	if token == "" {
+		return 0, nil, fmt.Errorf("token is required")
+	}
+
+	// Mock token validation - in production, you'd decode and verify the JWT
+	if token == "mock-jwt-token" {
+		// Return a mock user for testing
+		user, err := s.db.GetUserByID(1) // Assuming user ID 1 exists
+		if err != nil {
+			return 0, nil, fmt.Errorf("user not found")
+		}
+		return user.ID, user, nil
+	}
+
+	return 0, nil, fmt.Errorf("invalid token")
+}
