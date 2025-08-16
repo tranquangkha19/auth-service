@@ -5,3 +5,6 @@
 *.pem
 *.key
 *.crt
+
+# curl commands
+curl_commands.md

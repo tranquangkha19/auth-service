@@ -1,0 +1,54 @@
+services:
+  # Auth Service
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: auth_service
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: auth_service
+      SSL_MODE: disable
+      PORT: 8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - app_network
+    restart: unless-stopped
+
+  # Promotion Service
+  promotion-service:
+    build:
+      context: ./promotion-service
+      dockerfile: Dockerfile
+    container_name: promotion_service
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: auth_service
+      SSL_MODE: disable
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      AUTH_SERVICE_HOST: auth-service
+      AUTH_SERVICE_PORT: 8080
+      PORT: 8082
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+      - redis
+      - auth-service
+    networks:
+      - app_network
+    restart: unless-stopped
+
+networks:
+  app_network:
+    external: true
