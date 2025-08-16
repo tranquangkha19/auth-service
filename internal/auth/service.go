@@ -18,11 +18,20 @@ type RegisterRequest struct {
 }
 
 type Service struct {
-	db *database.Database
+	db         *database.Database
+	jwtService *JWTService
 }
 
-func NewService(db *database.Database) *Service {
-	return &Service{db: db}
+func NewService(db *database.Database) (*Service, error) {
+	jwtService, err := NewJWTService()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create JWT service: %w", err)
+	}
+
+	return &Service{
+		db:         db,
+		jwtService: jwtService,
+	}, nil
 }
 
 func (s *Service) Login(account, password string) (string, error) {
@@ -41,8 +50,13 @@ func (s *Service) Login(account, password string) (string, error) {
 		fmt.Printf("Failed to update latest login: %v\n", err)
 	}
 
-	// TODO: Generate JWT token here
-	return "mock-jwt-token", nil
+	// Generate JWT token
+	token, err := s.jwtService.GenerateToken(user)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate token: %w", err)
+	}
+
+	return token, nil
 }
 
 func (s *Service) Register(req RegisterRequest) error {
@@ -93,24 +107,22 @@ func (s *Service) Register(req RegisterRequest) error {
 }
 
 // ValidateToken validates a JWT token and returns user information
-// For now, this is a simple mock implementation
 func (s *Service) ValidateToken(token string) (uint, *database.User, error) {
-	// TODO: Implement proper JWT token validation
-	// For now, we'll use a simple mock token validation
-
 	if token == "" {
 		return 0, nil, fmt.Errorf("token is required")
 	}
 
-	// Mock token validation - in production, you'd decode and verify the JWT
-	if token == "mock-jwt-token" {
-		// Return a mock user for testing
-		user, err := s.db.GetUserByID(1) // Assuming user ID 1 exists
-		if err != nil {
-			return 0, nil, fmt.Errorf("user not found")
-		}
-		return user.ID, user, nil
+	// Validate JWT token
+	claims, err := s.jwtService.ValidateToken(token)
+	if err != nil {
+		return 0, nil, fmt.Errorf("invalid token: %w", err)
 	}
 
-	return 0, nil, fmt.Errorf("invalid token")
+	// Get user from database
+	user, err := s.db.GetUserByID(claims.UserID)
+	if err != nil {
+		return 0, nil, fmt.Errorf("user not found: %w", err)
+	}
+
+	return user.ID, user, nil
 }

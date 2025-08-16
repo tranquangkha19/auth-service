@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tranquangkha19/auth-service/internal/auth"
@@ -16,16 +15,22 @@ type Server struct {
 	db     *database.Database
 }
 
-func NewServer(cfg config.Config) *Server {
+func NewServer(cfg config.Config) (*Server, error) {
 	router := gin.Default()
 
 	// Initialize database
 	db, err := database.NewDatabase(cfg.Database)
 	if err != nil {
-		log.Fatalf("Failed to initialize database: %v", err)
+		return nil, fmt.Errorf("failed to initialize database: %w", err)
 	}
 
-	authHandler := auth.NewHandler(auth.NewService(db))
+	// Initialize auth service
+	authService, err := auth.NewService(db)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize auth service: %w", err)
+	}
+
+	authHandler := auth.NewHandler(authService)
 
 	router.POST("/login", authHandler.Login)
 	router.POST("/register", authHandler.Register)
@@ -43,7 +48,7 @@ func NewServer(cfg config.Config) *Server {
 		router: router,
 		cfg:    cfg,
 		db:     db,
-	}
+	}, nil
 }
 
 func (s *Server) Run() {
