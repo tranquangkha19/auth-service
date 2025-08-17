@@ -58,6 +58,7 @@ func (j *JWTService) GenerateToken(user *database.User) (string, error) {
 		Email:    getEmail(user),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(j.expirationHours) * time.Hour)),
+			//ExpiresAt: jwt.NewNumericDate(time.Now().Add(30 * time.Second)), //MOCK: 30 seconds for testing
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
 			Issuer:    "auth-service",
