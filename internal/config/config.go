@@ -38,6 +38,10 @@ func LoadConfig(path string) (Config, error) {
 	// Set environment variable mappings for database credentials
 	viper.BindEnv("DATABASE.USER", "DB_USER")
 	viper.BindEnv("DATABASE.PASSWORD", "DB_PASSWORD")
+	viper.BindEnv("DATABASE.HOST", "DB_HOST")
+	viper.BindEnv("DATABASE.PORT", "DB_PORT")
+	viper.BindEnv("DATABASE.DB_NAME", "DB_NAME")
+	viper.BindEnv("DATABASE.SSL_MODE", "SSL_MODE")
 
 	if err := viper.ReadInConfig(); err != nil {
 		return cfg, err

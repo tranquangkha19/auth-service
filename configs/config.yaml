@@ -1,7 +1,7 @@
 APP_NAME: auth-service
 PORT: "8080"
 DATABASE:
-  HOST: "localhost"
-  PORT: "5433"
+  HOST: "postgres"
+  PORT: "5432"
   DB_NAME: "auth_service"
   SSL_MODE: "disable"

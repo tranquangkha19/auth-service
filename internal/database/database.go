@@ -28,9 +28,9 @@ type Database struct {
 }
 
 func NewDatabase(cfg config.DatabaseConfig) (*Database, error) {
-	// Use URL format for more reliable connection
-	dsn := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s",
-		cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.DBName, cfg.SSLMode)
+	// Force TCP connection by explicitly specifying the host and port
+	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DBName, cfg.SSLMode)
 
 	log.Printf("Connecting to database with DSN: %s", dsn)
 
